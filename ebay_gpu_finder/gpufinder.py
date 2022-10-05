@@ -5,6 +5,8 @@ from bs4 import BeautifulSoup
 from colorama import Fore
 
 
+'Hello'
+
 
 def run(driver, keyword, price):
     URL = f"https://www.ebay-kleinanzeigen.de/s-preis::{price}/{keyword}/k0"
