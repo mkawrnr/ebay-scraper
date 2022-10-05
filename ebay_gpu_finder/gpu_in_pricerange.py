@@ -16,7 +16,8 @@ def run(driver, keyword, price):
                 "verpackung" in l and not
                 "defekt" in l and not
                 "bildfehler" in l and not 
-                "bastler" in l
+                "bastler" in l and not
+                "basteln" in l
                 ]
     
     print("\n\n" + "GPU: " + Fore.YELLOW + keyword + Fore.WHITE + " MAX. PRICE: " + Fore.YELLOW + price + "€" + "\n") 
