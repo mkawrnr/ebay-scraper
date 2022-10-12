@@ -31,7 +31,7 @@ def run(driver, keyword, price):
 
 def start():    
     keyword = str(input("KEYWORD >> "))
-    if keyword == "exit":
+    if not keyword:
         exit()
     price = str(input("PRICE >> "))
     
