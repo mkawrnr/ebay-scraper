@@ -15,11 +15,21 @@ def run(driver, keyword, max_price, pages):
     for page in range(1, pages+1):
         try:
             driver.get(f"https://www.ebay-kleinanzeigen.de/s-preis::{max_price}/seite:{page}/{keyword}/k0")
-            links = [str(l.attrs['href']) for l in BeautifulSoup(driver.page_source, 'html.parser').find_all('a', {'class': 'ellipsis'})]
-            prices = [str(p.text.strip("\n                                        ").strip(" VB").replace(" ", "")) for p in BeautifulSoup(driver.page_source, 'html.parser').find_all('p', {'class': 'aditem-main--middle--price-shipping--price'})]
+            
+            links = [
+                str(l.attrs['href']) for l in BeautifulSoup(driver.page_source, 'html.parser')
+                .find_all('a', {'class': 'ellipsis'})
+            ]
+            prices = [
+                str(p.text.strip("\n                                        ")
+                .strip(" VB").replace(" ", "")) for p in BeautifulSoup(driver.page_source, 'html.parser')
+                .find_all('p', {'class': 'aditem-main--middle--price-shipping--price'})
+            ]
+            
             combined = []
             for l in links:
-                combined.append([l, prices[links.index(l)]])    
+                combined.append([l, prices[links.index(l)]])
+                
             filtered = [pair for pair in combined if not 
                         "suche" in pair[0] and not
                         "tausche" in pair[0] and not 
@@ -29,18 +39,24 @@ def run(driver, keyword, max_price, pages):
                         "bastler" in pair[0] and not
                         "basteln" in pair[0]
                         ]
+            
             for l in filtered:
                 number = Fore.GREEN + str(filtered.index(l))
                 link = Fore.WHITE + f"https://www.ebay-kleinanzeigen.de{l[0]}"
                 price = Fore.GREEN + l[1]
                 collection.append([number, link, price])
-        # breaks if last page is reached
         except:
             break
 
     driver.close()
-    print("\n\n" + "  KEYWORD: " + Fore.YELLOW + keyword + Fore.WHITE + " | MAX. PRICE: " + Fore.YELLOW + max_price + "€" + Fore.WHITE + " | PAGES: " + Fore.YELLOW + str(pages) +"\n") 
+    
+    print(
+        "\n\n" + "  KEYWORD: " + Fore.YELLOW + keyword 
+        + Fore.WHITE + " | MAX. PRICE: " + Fore.YELLOW + max_price + "€" 
+        + Fore.WHITE + " | PAGES: " + Fore.YELLOW + str(pages) +"\n"
+    ) 
     print(tabulate(collection, headers=["Nr.", "Link", "Price"]) + "\n\n")
+
 
 def start():
     if len(sys.argv) != 4:
@@ -51,7 +67,6 @@ def start():
     max_price = sys.argv[2]
     pages = int(sys.argv[3])
    
-    
     firefox_options = webdriver.FirefoxOptions()
     firefox_options.add_argument('--headless')
     driver = webdriver.Firefox(
