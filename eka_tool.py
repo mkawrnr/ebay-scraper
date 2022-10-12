@@ -7,7 +7,6 @@ from bs4 import BeautifulSoup
 from colorama import Fore
 
 
-# add number of pages to scrape
 def run(driver, keyword, max_price, pages):
     collection = []
     for page in range(1, pages+1):
@@ -25,13 +24,16 @@ def run(driver, keyword, max_price, pages):
                         ]
             for l in filtered:
                 collection.append(l)
-        # breaks if last page is reached
+        # breaks if less pages available than specified
         except:
             break
     
-    print("\n\n" + "GPU: " + Fore.YELLOW + keyword
+    print("\n\n" 
+        + Fore.WHITE + "GPU: " + Fore.YELLOW + keyword
         + Fore.WHITE + " | MAX. PRICE: " + Fore.YELLOW + max_price + "€"
-        + Fore.WHITE + " | PAGES: " + Fore.YELLOW + str(pages) +"\n") 
+        + Fore.WHITE + " | PAGES: " + Fore.YELLOW + str(pages) 
+        +"\n")
+     
     for i in range(len(collection)):
         print(Fore.GREEN + f"[{i + 1}] - " + Fore.WHITE + f"https://www.ebay-kleinanzeigen.de{collection[i]}")
     print("\n")
