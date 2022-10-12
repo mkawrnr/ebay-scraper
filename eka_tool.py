@@ -1,3 +1,5 @@
+import sys
+
 from selenium import webdriver
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.chrome.service import Service
@@ -5,6 +7,7 @@ from bs4 import BeautifulSoup
 from colorama import Fore
 
 
+# add number of pages to scrape
 def run(driver, keyword, price):
     URL = f"https://www.ebay-kleinanzeigen.de/s-preis::{price}/{keyword}/k0"
         
@@ -26,14 +29,16 @@ def run(driver, keyword, price):
     print("\n")
     
     driver.close()
-    start()
         
 
-def start():    
-    keyword = str(input("KEYWORD >> "))
-    if not keyword:
-        exit()
-    price = str(input("PRICE >> "))
+def start():
+    if len(sys.argv) != 3:
+        print("Invalid Arguments")
+        sys.exit(1)
+        
+    keyword = sys.argv[1]
+    max_price = sys.argv[2]
+   
     
     firefox_options = webdriver.FirefoxOptions()
     firefox_options.add_argument('--headless')
@@ -42,7 +47,7 @@ def start():
         service=Service(GeckoDriverManager().install())
     )
     
-    run(driver, keyword, price)
+    run(driver, keyword, max_price)
     
 
 if __name__ == '__main__':
