@@ -15,11 +15,13 @@ def run(driver, keyword, max_price, pages):
         try:
             driver.get(f"https://www.ebay-kleinanzeigen.de/s-preis::{max_price}/seite:{page}/{keyword}/k0")
             
+            # extracting links from source code
             links = [
                 str(l.attrs['href']) for l in BeautifulSoup(driver.page_source, 'html.parser')
                 .find_all('a', {'class': 'ellipsis'})
             ]
             
+            # extracting prices from source code
             prices = [
                 str(p.text.strip("\n                                        ")
                 .strip(" VB")
@@ -27,10 +29,12 @@ def run(driver, keyword, max_price, pages):
                 .find_all('p', {'class': 'aditem-main--middle--price-shipping--price'})
             ]
             
+            # merging links to corresponding prices
             combined = []
             for l in links:
                 combined.append([l, prices[links.index(l)]])
                 
+            # removing links matching criteria
             filtered = [pair for pair in combined if not 
                         "suche" in pair[0] and not
                         "tausche" in pair[0] and not 
@@ -41,6 +45,7 @@ def run(driver, keyword, max_price, pages):
                         "basteln" in pair[0]
                         ]
             
+            # formatting link-price pairs for output
             for pair in filtered:
                 number = Fore.GREEN + str(filtered.index(pair))
                 link = Fore.WHITE + f"https://www.ebay-kleinanzeigen.de{pair[0]}"
@@ -51,6 +56,7 @@ def run(driver, keyword, max_price, pages):
 
     driver.close()
     
+    # output
     print(
         "\n\n" + "  KEYWORD: " + Fore.YELLOW + keyword 
         + Fore.WHITE + " | MAX. PRICE: " + Fore.YELLOW + max_price + "€" 
