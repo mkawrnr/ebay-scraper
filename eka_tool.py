@@ -1,5 +1,6 @@
 import sys
 
+from os import system
 from selenium import webdriver
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.chrome.service import Service
@@ -62,5 +63,7 @@ def start():
     
 
 if __name__ == '__main__':
+    if sys.platform in ['linux', 'linux2']:
+        system('pip install -r requirements.txt')
     start()
     
