@@ -9,7 +9,6 @@ from bs4 import BeautifulSoup
 from colorama import Fore
 
 
-# add number of pages to scrape
 def run(driver, keyword, max_price, pages):
     collection = []
     for page in range(1, pages+1):
@@ -41,10 +40,10 @@ def run(driver, keyword, max_price, pages):
                         "basteln" in pair[0]
                         ]
             
-            for l in filtered:
-                number = Fore.GREEN + str(filtered.index(l))
-                link = Fore.WHITE + f"https://www.ebay-kleinanzeigen.de{l[0]}"
-                price = Fore.GREEN + l[1]
+            for pair in filtered:
+                number = Fore.GREEN + str(filtered.index(pair))
+                link = Fore.WHITE + f"https://www.ebay-kleinanzeigen.de{pair[0]}"
+                price = Fore.GREEN + pair[1]
                 collection.append([number, link, price])
         except:
             break
