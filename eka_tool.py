@@ -30,7 +30,9 @@ def run(driver, keyword, max_price, pages):
         except:
             break
     
-    print("\n\n" + "GPU: " + Fore.YELLOW + keyword + Fore.WHITE + " MAX. PRICE: " + Fore.YELLOW + max_price + "€" + "\n") 
+    print("\n\n" + "GPU: " + Fore.YELLOW + keyword
+        + Fore.WHITE + " MAX. PRICE: " + Fore.YELLOW + max_price + "€"
+        + Fore.WHITE + " PAGES: " + Fore.YELLOW + str(pages) +"\n") 
     for i in range(len(collection)):
         print(Fore.GREEN + f"[{i + 1}] - " + Fore.WHITE + f"https://www.ebay-kleinanzeigen.de{collection[i]}")
     print("\n")
