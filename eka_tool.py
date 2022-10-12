@@ -1,5 +1,6 @@
 import sys
 
+from tabulate import tabulate
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from webdriver_manager.firefox import GeckoDriverManager
@@ -15,30 +16,31 @@ def run(driver, keyword, max_price, pages):
         try:
             driver.get(f"https://www.ebay-kleinanzeigen.de/s-preis::{max_price}/seite:{page}/{keyword}/k0")
             links = [str(l.attrs['href']) for l in BeautifulSoup(driver.page_source, 'html.parser').find_all('a', {'class': 'ellipsis'})]
-            filtered = [l for l in links if not 
-                        "suche" in l and not
-                        "tausche" in l and not 
-                        "verpackung" in l and not
-                        "defekt" in l and not
-                        "bildfehler" in l and not 
-                        "bastler" in l and not
-                        "basteln" in l
+            prices = [str(p.text.strip("\n                                        ").strip(" VB").replace(" ", "")) for p in BeautifulSoup(driver.page_source, 'html.parser').find_all('p', {'class': 'aditem-main--middle--price-shipping--price'})]
+            combined = []
+            for l in links:
+                combined.append([l, prices[links.index(l)]])    
+            filtered = [pair for pair in combined if not 
+                        "suche" in pair[0] and not
+                        "tausche" in pair[0] and not 
+                        "verpackung" in pair[0] and not
+                        "defekt" in pair[0] and not
+                        "bildfehler" in pair[0] and not 
+                        "bastler" in pair[0] and not
+                        "basteln" in pair[0]
                         ]
             for l in filtered:
-                collection.append(l)
+                number = Fore.GREEN + str(filtered.index(l))
+                link = Fore.WHITE + f"https://www.ebay-kleinanzeigen.de{l[0]}"
+                price = Fore.GREEN + l[1]
+                collection.append([number, link, price])
         # breaks if last page is reached
         except:
             break
-    
-    print("\n\n" + "GPU: " + Fore.YELLOW + keyword
-        + Fore.WHITE + " MAX. PRICE: " + Fore.YELLOW + max_price + "€"
-        + Fore.WHITE + " PAGES: " + Fore.YELLOW + str(pages) +"\n") 
-    for i in range(len(collection)):
-        print(Fore.GREEN + f"[{i + 1}] - " + Fore.WHITE + f"https://www.ebay-kleinanzeigen.de{collection[i]}")
-    print("\n")
-    
+
     driver.close()
-        
+    print("\n\n" + "  KEYWORD: " + Fore.YELLOW + keyword + Fore.WHITE + " | MAX. PRICE: " + Fore.YELLOW + max_price + "€" + Fore.WHITE + " | PAGES: " + Fore.YELLOW + str(pages) +"\n") 
+    print(tabulate(collection, headers=["Nr.", "Link", "Price"]) + "\n\n")
 
 def start():
     if len(sys.argv) != 4:
