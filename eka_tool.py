@@ -22,7 +22,8 @@ def run(driver, keyword, max_price, pages):
             
             prices = [
                 str(p.text.strip("\n                                        ")
-                .strip(" VB").replace(" ", "")) for p in BeautifulSoup(driver.page_source, 'html.parser')
+                .strip(" VB")
+                .replace(" ", "")) for p in BeautifulSoup(driver.page_source, 'html.parser')
                 .find_all('p', {'class': 'aditem-main--middle--price-shipping--price'})
             ]
             
