@@ -33,7 +33,7 @@ def run(driver, keyword, max_price, pages):
             for l in links:
                 combined.append([l, prices[links.index(l)]])
                 
-            # removing links matching criteria
+            # removing links matching filter keywords
             filtered = [pair for pair in combined if not 
                         "suche" in pair[0] and not
                         "tausche" in pair[0] and not 
