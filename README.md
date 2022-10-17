@@ -1,3 +1,5 @@
+REQUIRES FIREFOX TO RUN
+
 **Install Requirements**<br>
 pip install -r requirements.txt
 
