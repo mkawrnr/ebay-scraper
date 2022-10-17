@@ -46,7 +46,7 @@ def run(driver, keyword, max_price, pages):
             
             # formatting link-price pairs for output
             for pair in filtered:
-                number = Fore.GREEN + str(filtered.index(pair))
+                number = Fore.GREEN + str(filtered.index(pair)+1)
                 link = Fore.WHITE + f"https://www.ebay-kleinanzeigen.de{pair[0]}"
                 price = Fore.GREEN + pair[1]
                 collection.append([number, link, price])
