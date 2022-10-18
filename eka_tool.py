@@ -9,7 +9,6 @@ from colorama import Fore
 
 
 
-
 # All filters that can be applied to prodcut information goes here
 def advanced_filters(prices):
     average_product_price = sum(int(p) for p in prices) / len(prices)
