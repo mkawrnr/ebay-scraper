@@ -9,9 +9,18 @@ from colorama import Fore
 
 
 
-# All filters that can be applied to prodcut information goes here
-def advanced_filters(prices):
-    average_product_price = sum(int(p) for p in prices) / len(prices)
+def apply_filter(collection, extreme_below_average):
+    _result = []
+    for pair in collection:
+        if int(pair[1]) > extreme_below_average:
+            _result.append(pair)
+            
+    return _result
+
+
+# All filters that can be applied to prodcut prices_information goes here
+def average_price_info(prices):
+    average_product_price = sum(prices) / len(prices)
     
     below_average_price = average_product_price * 0.666
     extreme_below_average_price = average_product_price* 0.45
@@ -21,6 +30,7 @@ def advanced_filters(prices):
 
 def run(driver, keyword, max_price, pages):
     collection = []
+    collection_prices = []
     for page in range(1, pages+1):
         try:
             driver.get(f"https://www.ebay-kleinanzeigen.de/s-preis::{max_price}/seite:{page}/{keyword}/k0")
@@ -40,10 +50,8 @@ def run(driver, keyword, max_price, pages):
                 .find_all('p', {'class': 'aditem-main--middle--price-shipping--price'})
             ]
             
-            driver.close()
-            
-            # average_product_price - below_average_price
-            information = advanced_filters(prices)
+            for p in prices:
+                collection_prices.append(int(p))
             
             # merging links to corresponding prices
             combined = []
@@ -59,23 +67,38 @@ def run(driver, keyword, max_price, pages):
                         "bildfehler" in pair[0] and not 
                         "bastler" in pair[0] and not
                         "basteln" in pair[0] and not
-                        "fehler" in pair[0] and not
-                        int(pair[1]) < information[2]
+                        "fehler" in pair[0]
                         ]
         
-                
-            # formatting link-price pairs for output
             for pair in filtered:
-                number = Fore.GREEN + str(filtered.index(pair)+1)
-                link = Fore.WHITE + f"https://www.ebay-kleinanzeigen.de{pair[0]}"
-                
-                if int(pair[1]) >= information[1]:
-                    price = Fore.GREEN + pair[1] + "€"
-                else:
-                    price = Fore.RED + pair[1] + "€ - POSSIBLE SCAM OR WRONG PRODUCT"
-                collection.append([number, link, price])
+                collection.append(pair)
+            
+            # formatting link-price pairs for output
+            # for pair in filtered:
+            #     number = Fore.GREEN + str(filtered.index(pair)+1)
+            #     link = Fore.WHITE + f"https://www.ebay-kleinanzeigen.de{pair[0]}"
+            #     price = Fore.GREEN + pair[1] + "€"
+            #     # if int(pair[1]) >= prices_information[1]:
+            #     #     price = Fore.GREEN + pair[1] + "€"
+            #     # else:
+            #     #     price = Fore.RED + pair[1] + "€ - POSSIBLE SCAM OR WRONG PRODUCT"
+            #     collection.append([number, link, price])
         except:
             break
+    driver.close()
+    
+    prices_information = average_price_info(collection_prices)
+    applied = apply_filter(collection, prices_information[2])
+    
+    complete = []
+    for pair in applied:
+        number = Fore.GREEN + str(applied.index(pair)+1)
+        link = Fore.WHITE + f"https://www.ebay-kleinanzeigen.de{pair[0]}"
+        if int(pair[1]) >= prices_information[1]:
+            price = Fore.GREEN + pair[1] + "€"
+        else:
+            price = Fore.RED + pair[1] + "€ - POSSIBLE SCAM OR WRONG PRODUCT"
+        complete.append([number, link, price])
     
     # output
     print(
@@ -83,10 +106,10 @@ def run(driver, keyword, max_price, pages):
         + Fore.WHITE + "  KEYWORD: " + Fore.YELLOW + keyword 
         + Fore.WHITE + " | MAX. PRICE: " + Fore.YELLOW + max_price + "€" 
         + Fore.WHITE + " | PAGES: " + Fore.YELLOW + str(pages)
-        + Fore.WHITE + " | AVERAGE PRICE: " + Fore.YELLOW + "~" + str(information[0]) + "€"
+        + Fore.WHITE + " | AVERAGE PRICE: " + Fore.YELLOW + "~" + str(prices_information[0]) + "€"
         + "\n"
     ) 
-    print(tabulate(collection, headers=["Nr.", "Link", "Price"]) + "\n\n")
+    print(tabulate(complete, headers=["Nr.", "Link", "Price"]) + "\n\n")
 
 
 def start():
