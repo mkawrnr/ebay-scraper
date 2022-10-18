@@ -9,23 +9,19 @@ from colorama import Fore
 
 
 
-def apply_filter(collection, extreme_below_average):
-    _result = []
-    for pair in collection:
-        if int(pair[1]) > extreme_below_average:
-            _result.append(pair)
-            
-    return _result
-
-
-# All filters that can be applied to prodcut prices_information goes here
-def average_price_info(prices):
+def get_estimated_average_prices(prices):
     average_product_price = sum(prices) / len(prices)
+    extreme_below_average_price = average_product_price * 0.45
     
-    below_average_price = average_product_price * 0.666
-    extreme_below_average_price = average_product_price* 0.45
+    new_prices = []
+    for p in prices:
+        if p > extreme_below_average_price:
+            new_prices.append(p)
     
-    return([average_product_price, below_average_price, extreme_below_average_price])
+    average_product_price_new = sum(new_prices) / len(new_prices)
+    below_average_price = average_product_price_new * 0.666
+    
+    return [average_product_price_new, below_average_price, extreme_below_average_price]
 
 
 def run(driver, keyword, max_price, pages):
@@ -35,13 +31,11 @@ def run(driver, keyword, max_price, pages):
         try:
             driver.get(f"https://www.ebay-kleinanzeigen.de/s-preis::{max_price}/seite:{page}/{keyword}/k0")
             
-            # extracting links from source code
             links = [
                 str(l.attrs['href']) for l in BeautifulSoup(driver.page_source, 'html.parser')
                 .find_all('a', {'class': 'ellipsis'})
             ]
             
-            # extracting prices from source code
             prices = [
                 str(p.text.strip("\n                                        ")
                 .strip(" VB")
@@ -53,13 +47,11 @@ def run(driver, keyword, max_price, pages):
             for p in prices:
                 collection_prices.append(int(p))
             
-            # merging links to corresponding prices
             combined = []
             for l in links:
                 combined.append([l, prices[links.index(l)]])
                 
-            # removing links matching filter keywords & applied advanced filter
-            filtered = [pair for pair in combined if not 
+            collection = [pair for pair in combined if not 
                         "suche" in pair[0] and not
                         "tausche" in pair[0] and not 
                         "verpackung" in pair[0] and not
@@ -69,30 +61,19 @@ def run(driver, keyword, max_price, pages):
                         "basteln" in pair[0] and not
                         "fehler" in pair[0]
                         ]
-        
-            for pair in filtered:
-                collection.append(pair)
-            
-            # formatting link-price pairs for output
-            # for pair in filtered:
-            #     number = Fore.GREEN + str(filtered.index(pair)+1)
-            #     link = Fore.WHITE + f"https://www.ebay-kleinanzeigen.de{pair[0]}"
-            #     price = Fore.GREEN + pair[1] + "€"
-            #     # if int(pair[1]) >= prices_information[1]:
-            #     #     price = Fore.GREEN + pair[1] + "€"
-            #     # else:
-            #     #     price = Fore.RED + pair[1] + "€ - POSSIBLE SCAM OR WRONG PRODUCT"
-            #     collection.append([number, link, price])
         except:
             break
     driver.close()
+    print(collection)
+    prices_information = get_estimated_average_prices(collection_prices)
     
-    prices_information = average_price_info(collection_prices)
-    applied = apply_filter(collection, prices_information[2])
+    for pair in collection:
+        if int(pair[1]) < prices_information[2]:
+            collection.remove(pair)
     
     complete = []
-    for pair in applied:
-        number = Fore.GREEN + str(applied.index(pair)+1)
+    for pair in collection:
+        number = Fore.GREEN + str(collection.index(pair)+1)
         link = Fore.WHITE + f"https://www.ebay-kleinanzeigen.de{pair[0]}"
         if int(pair[1]) >= prices_information[1]:
             price = Fore.GREEN + pair[1] + "€"
@@ -100,7 +81,6 @@ def run(driver, keyword, max_price, pages):
             price = Fore.RED + pair[1] + "€ - POSSIBLE SCAM OR WRONG PRODUCT"
         complete.append([number, link, price])
     
-    # output
     print(
         "\n\n"
         + Fore.WHITE + "  KEYWORD: " + Fore.YELLOW + keyword 
