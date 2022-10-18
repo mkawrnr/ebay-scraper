@@ -8,6 +8,18 @@ from bs4 import BeautifulSoup
 from colorama import Fore
 
 
+
+
+# All filters that can be applied to prodcut information goes here
+def advanced_filters(prices):
+    average_product_price = sum(int(p) for p in prices) / len(prices)
+    
+    below_average_price = average_product_price * 0.666
+    extreme_below_average_price= average_product_price* 0.45
+    
+    return([average_product_price, below_average_price, extreme_below_average_price])
+
+
 def run(driver, keyword, max_price, pages):
     collection = []
     for page in range(1, pages+1):
@@ -24,16 +36,22 @@ def run(driver, keyword, max_price, pages):
             prices = [
                 str(p.text.strip("\n                                        ")
                 .strip(" VB")
+                .strip("€")
                 .replace(" ", "")) for p in BeautifulSoup(driver.page_source, 'html.parser')
                 .find_all('p', {'class': 'aditem-main--middle--price-shipping--price'})
             ]
+            
+            driver.close()
+            
+            # average_product_price - below_average_price
+            information = advanced_filters(prices)
             
             # merging links to corresponding prices
             combined = []
             for l in links:
                 combined.append([l, prices[links.index(l)]])
                 
-            # removing links matching filter keywords
+            # removing links matching filter keywords & applied advanced filter
             filtered = [pair for pair in combined if not 
                         "suche" in pair[0] and not
                         "tausche" in pair[0] and not 
@@ -41,19 +59,24 @@ def run(driver, keyword, max_price, pages):
                         "defekt" in pair[0] and not
                         "bildfehler" in pair[0] and not 
                         "bastler" in pair[0] and not
-                        "basteln" in pair[0]
+                        "basteln" in pair[0] and not
+                        "fehler" in pair[0] and not
+                        int(pair[1]) < information[2]
                         ]
-            
+        
+                
             # formatting link-price pairs for output
             for pair in filtered:
                 number = Fore.GREEN + str(filtered.index(pair)+1)
                 link = Fore.WHITE + f"https://www.ebay-kleinanzeigen.de{pair[0]}"
-                price = Fore.GREEN + pair[1]
+                
+                if int(pair[1]) >= information[1]:
+                    price = Fore.GREEN + pair[1] + "€"
+                else:
+                    price = Fore.RED + pair[1] + "€ - POSSIBLE SCAM OR WRONG PRODUCT"
                 collection.append([number, link, price])
         except:
             break
-
-    driver.close()
     
     # output
     print(
