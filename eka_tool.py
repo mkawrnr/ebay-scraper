@@ -80,9 +80,12 @@ def run(driver, keyword, max_price, pages):
     
     # output
     print(
-        "\n\n" + "  KEYWORD: " + Fore.YELLOW + keyword 
+        "\n\n"
+        + Fore.WHITE + "  KEYWORD: " + Fore.YELLOW + keyword 
         + Fore.WHITE + " | MAX. PRICE: " + Fore.YELLOW + max_price + "€" 
-        + Fore.WHITE + " | PAGES: " + Fore.YELLOW + str(pages) +"\n"
+        + Fore.WHITE + " | PAGES: " + Fore.YELLOW + str(pages)
+        + Fore.WHITE + " | AVERAGE PRICE: " + Fore.YELLOW + "~" + str(information[0]) + "€"
+        + "\n"
     ) 
     print(tabulate(collection, headers=["Nr.", "Link", "Price"]) + "\n\n")
 
