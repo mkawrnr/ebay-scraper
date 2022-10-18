@@ -14,7 +14,7 @@ def advanced_filters(prices):
     average_product_price = sum(int(p) for p in prices) / len(prices)
     
     below_average_price = average_product_price * 0.666
-    extreme_below_average_price= average_product_price* 0.45
+    extreme_below_average_price = average_product_price* 0.45
     
     return([average_product_price, below_average_price, extreme_below_average_price])
 
