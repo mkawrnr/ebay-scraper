@@ -1,5 +1,6 @@
 import sys
 import argparse
+from venv import create
 
 from tabulate import tabulate
 from selenium import webdriver
@@ -9,13 +10,14 @@ from bs4 import BeautifulSoup
 from colorama import Fore
 
 
+# additional command-line parameters are created here
 parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--name", dest="name")
 parser.add_argument("-mp", "--max-price", dest="max_price")
 parser.add_argument("-p", "--pages", dest="pages", default=1)
 args = parser.parse_args()
 
-# add / remove filter keywords here
+# add / remove filter keywords
 FILTERWORDS = ['suche', 
                'tausche', 
                'verpackung', 
@@ -27,6 +29,7 @@ FILTERWORDS = ['suche',
                ]
 
 
+# to calculate the true average price of the searched item
 def get_estimated_average_prices(prices):
     average_product_price = sum(prices) / len(prices)
     extreme_below_average_price = average_product_price * 0.45
@@ -44,11 +47,13 @@ def run(driver, keyword, max_price, pages):
         try:
             driver.get(f"https://www.ebay-kleinanzeigen.de/s-preis::{max_price}/seite:{page}/{keyword}/k0")
             
+            # extraction of item links
             links = [
                 str(l.attrs['href']) for l in BeautifulSoup(driver.page_source, 'html.parser')
                 .find_all('a', {'class': 'ellipsis'})
             ]
             
+            # extraction of item prices
             prices = [
                 str(p.text.strip("\n                                        ")
                 .strip(" VB")
@@ -57,18 +62,21 @@ def run(driver, keyword, max_price, pages):
                 .find_all('p', {'class': 'aditem-main--middle--price-shipping--price'})
             ]
             
+            # combines extracted links and prices; applies filter words
             combined = list(zip(links, prices))
             combined_filtered = [pair for pair in combined if not any(word in pair[0] for word in FILTERWORDS)] 
             for pair in combined_filtered:
                 link_price_pairs.append(pair)
         except:
             break
-    driver.close()
+    driver.close() # driver instance terminated
     
+    # sorting out items by calculating and applying an extrem_below_average_price filter
     prices_collection = [int(p[1]) for p in link_price_pairs]
     prices_information = get_estimated_average_prices(prices_collection)
     link_price_pairs = [pair for pair in link_price_pairs if int(pair[1]) > prices_information[2]]
     
+    # formatting number, links and prices for output
     formatted_link_price_pairs = []
     for pair in link_price_pairs:
         number = Fore.GREEN + str(link_price_pairs.index(pair)+1)
@@ -79,6 +87,7 @@ def run(driver, keyword, max_price, pages):
             price = Fore.RED + pair[1] + "€ - POSSIBLE SCAM OR WRONG PRODUCT"
         formatted_link_price_pairs.append([number, link, price])
     
+    # formatted output
     print(
         "\n\n"
         + Fore.WHITE + "  KEYWORD: " + Fore.YELLOW + keyword 
@@ -91,15 +100,8 @@ def run(driver, keyword, max_price, pages):
     print(tabulate(formatted_link_price_pairs, headers=["Nr.", "Link", "Price"]) + "\n\n")
 
 
-def start():        
-    keyword = str(args.name)
-    max_price = str(args.max_price)
-    pages = int(args.pages)
-    
-    if not keyword or not max_price:
-        print("Keyword or price missing, exit.")
-        sys.exit(1)
-   
+# creates and returns driver instance
+def create_driver():
     firefox_options = webdriver.FirefoxOptions()
     firefox_options.add_argument('--headless')
     driver = webdriver.Firefox(
@@ -107,6 +109,20 @@ def start():
         service=Service(GeckoDriverManager().install())
     )
     
+    return driver
+
+
+def start():        
+    keyword = str(args.name)
+    max_price = str(args.max_price)
+    pages = int(args.pages)
+    
+    # required command-line parameters check
+    if not keyword or not max_price:
+        print("Keyword or price missing, exit.")
+        sys.exit(1)
+        
+    driver = create_driver()
     run(driver, keyword, max_price, pages)
     
 
