@@ -4,4 +4,4 @@ REQUIRES FIREFOX TO RUN
 pip install -r requirements.txt
 
 **Usage**<br>
-py eka_tool.py [keyword] [max_price] [pages]
+usage: eka_tool.py [-h] [-n NAME] [-mp MAX_PRICE] [-p PAGES]
