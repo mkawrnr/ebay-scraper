@@ -1,5 +1,3 @@
-FIXING BUGS AT THE MOMENT
-
 REQUIRES FIREFOX TO RUN
 
 **Install Requirements**<br>
