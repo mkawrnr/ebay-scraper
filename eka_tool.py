@@ -17,16 +17,20 @@ parser.add_argument("-p", "--pages", dest="pages", default=1)
 args = parser.parse_args()
 
 # add / remove filter keywords
-FILTERWORDS = ['suche', 'tausche',
-               'verpackung', 'defekt', 
-               'bildfehler', 'bastler', 
-               'basteln', 'fehler',
+FILTERWORDS = ['suche', 
+               'tausche',
+               'verpackung', 
+               'defekt', 
+               'bildfehler', 
+               'bastler', 
+               'basteln', 
+               'fehler',
                'kaputt',
                ]
 
 
 
-# to calculate the true average price of the searched item
+# calculates the true average price of the searched item
 def get_estimated_average_prices(prices):
     average_product_price = sum(prices) / len(prices)
     extreme_below_average_price = average_product_price * 0.45
