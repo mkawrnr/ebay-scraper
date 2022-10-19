@@ -1,4 +1,5 @@
 import sys
+import argparse
 
 from tabulate import tabulate
 from selenium import webdriver
@@ -7,6 +8,12 @@ from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup
 from colorama import Fore
 
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-n", "--name", dest="name")
+parser.add_argument("-mp", "--max-price", dest="max_price")
+parser.add_argument("-p", "--pages", dest="pages", default=1)
+args = parser.parse_args()
 
 # add / remove filter keywords here
 FILTERWORDS = ['suche', 
@@ -84,14 +91,14 @@ def run(driver, keyword, max_price, pages):
     print(tabulate(formatted_link_price_pairs, headers=["Nr.", "Link", "Price"]) + "\n\n")
 
 
-def start():
-    if len(sys.argv) != 4:
-        print("Invalid Arguments")
+def start():        
+    keyword = args.name
+    max_price = args.max_price
+    pages = args.pages
+    
+    if not keyword or not max_price:
+        print("Keyword or price missing, exit.")
         sys.exit(1)
-        
-    keyword = sys.argv[1]
-    max_price = sys.argv[2]
-    pages = int(sys.argv[3])
    
     firefox_options = webdriver.FirefoxOptions()
     firefox_options.add_argument('--headless')
