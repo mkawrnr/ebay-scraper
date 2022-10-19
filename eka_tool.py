@@ -8,25 +8,31 @@ from bs4 import BeautifulSoup
 from colorama import Fore
 
 
+# add / remove filter keywords here
+FILTERWORDS = ['suche', 
+               'tausche', 
+               'verpackung', 
+               'defekt', 
+               'bildfehler', 
+               'bastler', 
+               'basteln', 
+               'fehler'
+               ]
+
 
 def get_estimated_average_prices(prices):
     average_product_price = sum(prices) / len(prices)
     extreme_below_average_price = average_product_price * 0.45
     
-    new_prices = []
-    for p in prices:
-        if p > extreme_below_average_price:
-            new_prices.append(p)
-    
+    new_prices = [p for p in prices if p > extreme_below_average_price]  
     average_product_price_new = sum(new_prices) / len(new_prices)
-    below_average_price = average_product_price_new * 0.666
+    below_average_price = average_product_price_new * 0.8
     
     return [average_product_price_new, below_average_price, extreme_below_average_price]
 
 
 def run(driver, keyword, max_price, pages):
-    collection = []
-    collection_prices = []
+    link_price_pairs = []
     for page in range(1, pages+1):
         try:
             driver.get(f"https://www.ebay-kleinanzeigen.de/s-preis::{max_price}/seite:{page}/{keyword}/k0")
@@ -44,52 +50,38 @@ def run(driver, keyword, max_price, pages):
                 .find_all('p', {'class': 'aditem-main--middle--price-shipping--price'})
             ]
             
-            for p in prices:
-                collection_prices.append(int(p))
-            
-            combined = []
-            for l in links:
-                combined.append([l, prices[links.index(l)]])
-                
-            collection = [pair for pair in combined if not 
-                        "suche" in pair[0] and not
-                        "tausche" in pair[0] and not 
-                        "verpackung" in pair[0] and not
-                        "defekt" in pair[0] and not
-                        "bildfehler" in pair[0] and not 
-                        "bastler" in pair[0] and not
-                        "basteln" in pair[0] and not
-                        "fehler" in pair[0]
-                        ]
+            combined = list(zip(links, prices))
+            combined_filtered = [pair for pair in combined if not any(word in pair[0] for word in FILTERWORDS)] 
+            for pair in combined_filtered:
+                link_price_pairs.append(pair)
         except:
             break
     driver.close()
-    print(collection)
-    prices_information = get_estimated_average_prices(collection_prices)
     
-    for pair in collection:
-        if int(pair[1]) < prices_information[2]:
-            collection.remove(pair)
+    prices_collection = [int(p[1]) for p in link_price_pairs]
+    prices_information = get_estimated_average_prices(prices_collection)
+    link_price_pairs = [pair for pair in link_price_pairs if int(pair[1]) > prices_information[2]]
     
-    complete = []
-    for pair in collection:
-        number = Fore.GREEN + str(collection.index(pair)+1)
+    formatted_link_price_pairs = []
+    for pair in link_price_pairs:
+        number = Fore.GREEN + str(link_price_pairs.index(pair)+1)
         link = Fore.WHITE + f"https://www.ebay-kleinanzeigen.de{pair[0]}"
         if int(pair[1]) >= prices_information[1]:
             price = Fore.GREEN + pair[1] + "€"
         else:
             price = Fore.RED + pair[1] + "€ - POSSIBLE SCAM OR WRONG PRODUCT"
-        complete.append([number, link, price])
+        formatted_link_price_pairs.append([number, link, price])
     
     print(
         "\n\n"
         + Fore.WHITE + "  KEYWORD: " + Fore.YELLOW + keyword 
         + Fore.WHITE + " | MAX. PRICE: " + Fore.YELLOW + max_price + "€" 
         + Fore.WHITE + " | PAGES: " + Fore.YELLOW + str(pages)
-        + Fore.WHITE + " | AVERAGE PRICE: " + Fore.YELLOW + "~" + str(prices_information[0]) + "€"
+        + Fore.WHITE + " | AVERAGE PRICE: " + Fore.YELLOW + f"~{prices_information[0]:0.2f}€"
         + "\n"
     ) 
-    print(tabulate(complete, headers=["Nr.", "Link", "Price"]) + "\n\n")
+    
+    print(tabulate(formatted_link_price_pairs, headers=["Nr.", "Link", "Price"]) + "\n\n")
 
 
 def start():
