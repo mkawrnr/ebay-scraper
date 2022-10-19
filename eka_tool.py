@@ -92,9 +92,9 @@ def run(driver, keyword, max_price, pages):
 
 
 def start():        
-    keyword = args.name
-    max_price = args.max_price
-    pages = args.pages
+    keyword = str(args.name)
+    max_price = str(args.max_price)
+    pages = int(args.pages)
     
     if not keyword or not max_price:
         print("Keyword or price missing, exit.")
