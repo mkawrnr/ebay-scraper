@@ -1,6 +1,5 @@
 import sys
 import argparse
-from venv import create
 
 from tabulate import tabulate
 from selenium import webdriver
@@ -18,15 +17,13 @@ parser.add_argument("-p", "--pages", dest="pages", default=1)
 args = parser.parse_args()
 
 # add / remove filter keywords
-FILTERWORDS = ['suche', 
-               'tausche', 
-               'verpackung', 
-               'defekt', 
-               'bildfehler', 
-               'bastler', 
-               'basteln', 
-               'fehler'
+FILTERWORDS = ['suche', 'tausche',
+               'verpackung', 'defekt', 
+               'bildfehler', 'bastler', 
+               'basteln', 'fehler',
+               'kaputt',
                ]
+
 
 
 # to calculate the true average price of the searched item
@@ -47,13 +44,13 @@ def run(driver, keyword, max_price, pages):
         try:
             driver.get(f"https://www.ebay-kleinanzeigen.de/s-preis::{max_price}/seite:{page}/{keyword}/k0")
             
-            # extraction of item links
+            # extracts item links
             links = [
                 str(l.attrs['href']) for l in BeautifulSoup(driver.page_source, 'html.parser')
                 .find_all('a', {'class': 'ellipsis'})
             ]
             
-            # extraction of item prices
+            # extracts item prices
             prices = [
                 str(p.text.strip("\n                                        ")
                 .strip(" VB")
@@ -62,21 +59,23 @@ def run(driver, keyword, max_price, pages):
                 .find_all('p', {'class': 'aditem-main--middle--price-shipping--price'})
             ]
             
-            # combines extracted links and prices; applies filter words
+            # combines extracted links and prices; removes items matching filter words
             combined = list(zip(links, prices))
             combined_filtered = [pair for pair in combined if not any(word in pair[0] for word in FILTERWORDS)] 
             for pair in combined_filtered:
                 link_price_pairs.append(pair)
         except:
             break
-    driver.close() # driver instance terminated
+        
+    # terminates driver instance
+    driver.close()
     
-    # sorting out items by calculating and applying an extrem_below_average_price filter
+    # sorts out items by calculating and applying extrem_below_average_price filter
     prices_collection = [int(p[1]) for p in link_price_pairs]
     prices_information = get_estimated_average_prices(prices_collection)
     link_price_pairs = [pair for pair in link_price_pairs if int(pair[1]) > prices_information[2]]
     
-    # formatting number, links and prices for output
+    # formats number, links and prices for output
     formatted_link_price_pairs = []
     for pair in link_price_pairs:
         number = Fore.GREEN + str(link_price_pairs.index(pair)+1)
@@ -87,7 +86,7 @@ def run(driver, keyword, max_price, pages):
             price = Fore.RED + pair[1] + "€ - POSSIBLE SCAM OR WRONG PRODUCT"
         formatted_link_price_pairs.append([number, link, price])
     
-    # formatted output
+    # prints formatted output
     print(
         "\n\n"
         + Fore.WHITE + "  KEYWORD: " + Fore.YELLOW + keyword 
