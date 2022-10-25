@@ -1,4 +1,4 @@
-<h3>Requires the Firefox Browser because the Selenium Geckodriver is used</h3>
+<h3>Require Firefox Browser to be installed because the Selenium Geckodriver is used</h3>
 
 ![Preview Screenshot](./preview.png "Preview")
 
