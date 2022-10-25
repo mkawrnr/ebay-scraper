@@ -1,4 +1,6 @@
-REQUIRES FIREFOX TO RUN
+<h3>Requires the Firefox Browser because the Selenium Geckodriver is used</h3>
+
+![Preview Screenshot](./preview.png "Preview")
 
 **Install Requirements**<br>
 pip install -r requirements.txt
