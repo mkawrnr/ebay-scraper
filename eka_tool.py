@@ -31,14 +31,12 @@ FILTER_WORDS = ['suche',
 
 # calculates the true average price of the searched item
 def get_estimated_average_prices(prices):
-    average_product_price = sum(prices) / len(prices)
-    extreme_below_average_price = average_product_price * 0.45
-
+    extreme_below_average_price = (sum(prices) / len(prices)) * 0.45 # factor change by desire
     new_prices = [p for p in prices if p > extreme_below_average_price]
-    average_product_price_new = sum(new_prices) / len(new_prices)
-    below_average_price = average_product_price_new * 0.8
+    average_product_price = sum(new_prices) / len(new_prices)
+    below_average_price = average_product_price * 0.8 # factor change by desire
 
-    return [average_product_price_new, below_average_price, extreme_below_average_price]
+    return [average_product_price, below_average_price, extreme_below_average_price]
 
 
 def run(driver, keyword, max_price, pages):
