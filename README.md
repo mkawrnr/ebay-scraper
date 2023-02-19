@@ -1,4 +1,4 @@
-<h3>Simple scraper to filter products below a price from eBay Kleinanzeigen</h3>
+<h2>Simple scraper to filter products below a price from eBay Kleinanzeigen</h2>
 
 <hr>
 
@@ -6,7 +6,7 @@
 
 <br>
 
-##About
+**About**
 
 Give this scraper a keyword and maximum price and it will check as many pages as you like for products
 you might want to buy. Filters out articles by keywords and calculates the average price of all articles
