@@ -39,3 +39,9 @@ Example
 
 scraper.py -n gtx1080ti -mp 300 -p 5 -d chrome
 ```
+
+<br>
+
+**Notes**
+
+- Add keywords to FILTER_WORDS in scraper.py to filter unwanted posts, for example 'defect' or 'broken'.

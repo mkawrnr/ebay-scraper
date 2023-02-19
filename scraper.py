@@ -12,7 +12,7 @@ from colorama import Fore
 from random import choice
 
 
-# additional command-line parameters are created here
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--name", dest="name")
 parser.add_argument("-mp", "--max-price", dest="max_price")
@@ -20,17 +20,8 @@ parser.add_argument("-p", "--pages", dest="pages", default=1)
 parser.add_argument("-d", "--driver", dest="webdriver", default="firefox")
 args = parser.parse_args()
 
-# keywords used to filter out unwanted articles by post title
-FILTER_WORDS = ['suche',
-                'tausche',
-                'verpackung',
-                'defekt',
-                'bildfehler',
-                'bastler',
-                'basteln',
-                'fehler',
-                'kaputt',
-                ]
+# adding keywords to FILTER_WORDS will mostly remove any articles with these words included
+FILTER_WORDS = []
 
 
 # calculates the true average price of the searched item
@@ -115,7 +106,10 @@ def create_driver(wd):
             service=Service(GeckoDriverManager().install())
         )
     else:
-        version_number = get_latest_driver()
+        # get latest chromedriver version
+        url = 'https://chromedriver.storage.googleapis.com/LATEST_RELEASE'
+        response = requests.get(url)
+        version_number = response.text
 
         chrome_options = webdriver.ChromeOptions()        
         chrome_options.add_argument('--remote-debugging-port=9222')
@@ -126,15 +120,6 @@ def create_driver(wd):
         driver = webdriver.Chrome(service=Service(ChromeDriverManager(version=version_number).install()))
 
     return driver
-
-
-# gets latest chromedriver version
-def get_latest_driver() -> str:
-    url = 'https://chromedriver.storage.googleapis.com/LATEST_RELEASE'
-    response = requests.get(url)
-    version_number = response.text
-
-    return version_number
 
 
 # return random user-agent string
