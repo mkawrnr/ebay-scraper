@@ -8,5 +8,8 @@ pip install -r requirements.txt
 ```
 **Usage**<br>
 ```
-eka_tool.py [-h] [-n NAME] [-mp MAX_PRICE] [-p PAGES]
+eka_tool.py [-h] list all flags
+            [-n NAME] 
+            
+            [-mp MAX_PRICE] [-p PAGES]
 ```
