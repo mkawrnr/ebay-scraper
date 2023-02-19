@@ -1,4 +1,6 @@
-<h3>Simple scraper to filter products below a price form eBay Kleinanzeigen</h3>
+<h3>Simple scraper to filter products below a price from eBay Kleinanzeigen</h3>
+
+<hr>
 
 ![Preview Screenshot](./preview.png "Preview")
 
