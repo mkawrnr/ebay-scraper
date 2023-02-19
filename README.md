@@ -1,4 +1,4 @@
-<h2>Simple scraper to filter products below a price from eBay Kleinanzeigen</h2>
+<h3>Simple scraper to filter products below a price from eBay Kleinanzeigen</h3>
 
 <hr>
 
