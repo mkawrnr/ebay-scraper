@@ -1,12 +1,15 @@
 import sys
 import argparse
+import requests
 
 from tabulate import tabulate
 from selenium import webdriver
 from webdriver_manager.firefox import GeckoDriverManager
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup
 from colorama import Fore
+from random import choice
 
 
 # additional command-line parameters are created here
@@ -14,6 +17,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--name", dest="name")
 parser.add_argument("-mp", "--max-price", dest="max_price")
 parser.add_argument("-p", "--pages", dest="pages", default=1)
+parser.add_argument("-d", "--driver", dest="webdriver", default="firefox")
 args = parser.parse_args()
 
 # keywords used to filter out unwanted articles by post title
@@ -101,28 +105,79 @@ def run(driver, keyword, max_price, pages):
 
 
 # creates and returns driver instance
-def create_driver():
-    firefox_options = webdriver.FirefoxOptions()
-    firefox_options.add_argument('--headless')
-    driver = webdriver.Firefox(
-        options=firefox_options,
-        service=Service(GeckoDriverManager().install())
-    )
+def create_driver(wd):
+    if wd == 'firefox':
+        firefox_options = webdriver.FirefoxOptions()
+        firefox_options.add_argument('--headless')
+        firefox_options.add_argument(f'user-agent={generate_user_agent()}')
+        driver = webdriver.Firefox(
+            options=firefox_options,
+            service=Service(GeckoDriverManager().install())
+        )
+    else:
+        version_number = get_latest_driver()
+
+        chrome_options = webdriver.ChromeOptions()        
+        chrome_options.add_argument('--remote-debugging-port=9222')
+        chrome_options.add_argument('--disable-logging')
+        chrome_options.add_argument('--enable-javascript')   
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument(f"user-agent={generate_user_agent()}")
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager(version=version_number).install()))
 
     return driver
+
+
+# gets latest chromedriver version
+def get_latest_driver() -> str:
+    url = 'https://chromedriver.storage.googleapis.com/LATEST_RELEASE'
+    response = requests.get(url)
+    version_number = response.text
+
+    return version_number
+
+
+# return random user-agent string
+def generate_user_agent() -> str:
+    user_agents = [
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.72 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10) AppleWebKit/600.1.25 (KHTML, like Gecko) Version/8.0 "
+        "Safari/600.1.25",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 "
+        "Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/600.1.17 (KHTML, like Gecko) Version/7.1 "
+        "Safari/537.85.10",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko",
+        "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36",
+        ]
+
+    return choice(user_agents)
 
 
 def start():
     keyword = str(args.name)
     max_price = str(args.max_price)
     pages = int(args.pages)
+    webdriver = str(args.webdriver)
 
     # required command-line parameters check
     if not keyword or not max_price:
         print("Keyword or price missing, exit.")
         sys.exit(1)
+        
+    if pages < 1:
+        print("Number of pages must be larger than 0, exit.")
+        sys.exit(1)
+        
+    if webdriver.lower() not in ['firefox', 'chrome']:
+        print("Select a valid webdriver (e.g. chrome or firefox)")
+        sys.exit(1)
 
-    driver = create_driver()
+    driver = create_driver(webdriver)
     run(driver, keyword, max_price, pages)
 
 
