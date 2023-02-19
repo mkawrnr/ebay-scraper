@@ -24,16 +24,6 @@ args = parser.parse_args()
 FILTER_WORDS = []
 
 
-# calculates the true average price of the searched item
-def get_estimated_average_prices(prices):
-    extreme_below_average_price = (sum(prices) / len(prices)) * 0.45 # factor change by desire
-    new_prices = [p for p in prices if p > extreme_below_average_price]
-    average_product_price = sum(new_prices) / len(new_prices)
-    below_average_price = average_product_price * 0.8 # factor change by desire
-
-    return [average_product_price, below_average_price, extreme_below_average_price]
-
-
 def run(driver, keyword, max_price, pages):
     link_price_pairs = []
     for page in range(1, pages + 1):
@@ -93,6 +83,16 @@ def run(driver, keyword, max_price, pages):
     )
 
     print(tabulate(formatted_link_price_pairs, headers=["Nr.", "Link", "Price"]) + "\n\n")
+
+
+# calculates the true average price of the searched item
+def get_estimated_average_prices(prices):
+    extreme_below_average_price = (sum(prices) / len(prices)) * 0.45 # factor change by desire
+    new_prices = [p for p in prices if p > extreme_below_average_price]
+    average_product_price = sum(new_prices) / len(new_prices)
+    below_average_price = average_product_price * 0.8 # factor change by desire
+
+    return [average_product_price, below_average_price, extreme_below_average_price]
 
 
 # creates and returns driver instance
