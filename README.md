@@ -1,4 +1,4 @@
-<h3>Requires Firefox to be installed because the Selenium Geckodriver is used</h3>
+<h3>Simple scraper to filter products below a price form eBay Kleinanzeigen</h3>
 
 ![Preview Screenshot](./preview.png "Preview")
 
