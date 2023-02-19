@@ -6,7 +6,7 @@
 
 <br>
 
-**About**
+#About
 
 Give this scraper a keyword and maximum price and it will check as many pages as you like for products
 you might want to buy. Filters out articles by keywords and calculates the average price of all articles
