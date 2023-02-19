@@ -4,7 +4,7 @@
 
 ![Preview Screenshot](./preview.png "Preview")
 
-<hr>
+<br>
 
 **About**
 
@@ -12,14 +12,14 @@ Give this scraper a keyword and maximum price and it will check as many pages as
 you might want to buy. Filters out articles by keywords and calculates the average price of all articles
 to detect which ones might be wrong products or scams. Results will be displayed in a nice table format.
 
-<hr>
+<br>
 
 **Install Requirements**<br>
 ```
 pip install -r requirements.txt
 ```
 
-<hr>
+<br>
 
 **Usage**<br>
 ```
