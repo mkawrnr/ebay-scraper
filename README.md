@@ -8,8 +8,10 @@ pip install -r requirements.txt
 ```
 **Usage**<br>
 ```
-eka_tool.py [-h] list all flags
-            [-n NAME] 
-            
-            [-mp MAX_PRICE] [-p PAGES]
+REQUIRED
+scraper.py [-n NAME; --name NAME] set the article name
+           [-mp PRICE; --max_price PRICE] set the maximum price
+OPTIONAL
+scraper.py [-p PAGES; --pages PAGES] set how many pages to scrape
+           [-d DRIVER; --driver DRIVER] set which driver to use (chrome / firefox) 
 ```
