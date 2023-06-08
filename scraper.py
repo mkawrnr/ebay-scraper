@@ -1,6 +1,7 @@
 import sys
 import argparse
 import requests
+import platform
 
 from tabulate import tabulate
 from selenium import webdriver
@@ -18,10 +19,26 @@ parser.add_argument("-n", "--name", dest="name")
 parser.add_argument("-mp", "--max-price", dest="max_price")
 parser.add_argument("-p", "--pages", dest="pages", default=1)
 parser.add_argument("-d", "--driver", dest="webdriver", default="firefox")
+parser.add_argument("-l", "--list", dest="list", default=False)
 args = parser.parse_args()
 
 # adding keywords to FILTER_WORDS will mostly remove any articles with these words included
-FILTER_WORDS = []
+FILTER_WORDS = [
+    'kaputt',
+    'bastler',
+    'repair',
+    'Displayschaden',
+    'displayschaden',
+    'schaden',
+    'risse',
+    'Risse',
+    'riss',
+    'Schaden',
+    'Tausche',
+    'Tauschen',
+    'Tausch',
+    'tausch'
+]
 
 
 def run(driver, keyword, max_price, pages):
@@ -61,28 +78,43 @@ def run(driver, keyword, max_price, pages):
     prices_information = get_estimated_average_prices(prices_collection)
     link_price_pairs = [pair for pair in link_price_pairs if int(pair[1]) > prices_information[2]]
 
-    # formats number, links and prices for output
-    formatted_link_price_pairs = []
-    for pair in link_price_pairs:
-        number = Fore.GREEN + str(link_price_pairs.index(pair) + 1)
-        link = Fore.WHITE + f"https://www.ebay-kleinanzeigen.de{pair[0]}"
-        if int(pair[1]) >= prices_information[1]:
-            price = Fore.GREEN + pair[1] + "€"
-        else:
-            price = Fore.RED + pair[1] + "€ - POSSIBLE SCAM OR WRONG PRODUCT"
-        formatted_link_price_pairs.append([number, link, price])
 
-    # prints formatted output
-    print(
-        "\n\n"
-        + Fore.WHITE + "  KEYWORD: " + Fore.YELLOW + keyword
-        + Fore.WHITE + " | MAX. PRICE: " + Fore.YELLOW + max_price + "€"
-        + Fore.WHITE + " | PAGES: " + Fore.YELLOW + str(pages)
-        + Fore.WHITE + " | AVERAGE PRICE: " + Fore.YELLOW + f"~{prices_information[0]:0.2f}€"
-        + "\n"
-    )
+    if args.list:
+        from datetime import datetime
+        current_time = datetime.now().strftime("%H:%M:%S")
+        
+        with open(f'results/results-{current_time}.txt', 'w') as file:
+            for i, pair in enumerate(link_price_pairs):
+                
+                if int(pair[1]) >= prices_information[1]:
+                    price = pair[1] + "€"
+                else:
+                    price = pair[1] + "€ - SCAM/DAMAGED/WRONG PRODUCT"
+                
+                file.write(f"{i+1}. https://www.kleinanzeigen.de{pair[0]} - {price}\n")
+    else:
+        # formats number, links and prices for output
+        formatted_link_price_pairs = []
+        for pair in link_price_pairs:
+            number = Fore.GREEN + str(link_price_pairs.index(pair) + 1)
+            link = Fore.WHITE + f"https://www.kleinanzeigen.de{pair[0]}"
+            if int(pair[1]) >= prices_information[1]:
+                price = Fore.GREEN + pair[1] + "€"
+            else:
+                price = Fore.RED + pair[1] + "€ - SCAM/DAMAGED/WRONG PRODUCT"
+            formatted_link_price_pairs.append([number, link, price])
 
-    print(tabulate(formatted_link_price_pairs, headers=["Nr.", "Link", "Price"]) + "\n\n")
+        # prints formatted output
+        print(
+            "\n\n"
+            + Fore.WHITE + "  KEYWORD: " + Fore.YELLOW + keyword
+            + Fore.WHITE + " | MAX. PRICE: " + Fore.YELLOW + max_price + "€"
+            + Fore.WHITE + " | PAGES: " + Fore.YELLOW + str(pages)
+            + Fore.WHITE + " | AVERAGE PRICE: " + Fore.YELLOW + f"~{prices_information[0]:0.2f}€"
+            + "\n"
+        )
+
+        print(tabulate(formatted_link_price_pairs, headers=["Nr.", "Link", "Price"]) + "\n\n")
 
 
 # calculates the true average price of the searched item
@@ -106,18 +138,21 @@ def create_driver(wd):
             service=Service(GeckoDriverManager().install())
         )
     else:
-        # get latest chromedriver version
-        url = 'https://chromedriver.storage.googleapis.com/LATEST_RELEASE'
-        response = requests.get(url)
-        version_number = response.text
-
         chrome_options = webdriver.ChromeOptions()        
         chrome_options.add_argument('--remote-debugging-port=9222')
         chrome_options.add_argument('--disable-logging')
         chrome_options.add_argument('--enable-javascript')   
         chrome_options.add_argument('--headless')
         chrome_options.add_argument(f"user-agent={generate_user_agent()}")
-        driver = webdriver.Chrome(service=Service(ChromeDriverManager(version=version_number).install()))
+        
+        if platform.system() == 'Darwin':
+            driver = webdriver.Chrome(executable_path="webdrivers/chromedriver", options=chrome_options)
+        else:
+            # get latest chromedriver version
+            url = 'https://chromedriver.storage.googleapis.com/LATEST_RELEASE'
+            response = requests.get(url)
+            version_number = response.text
+            driver = webdriver.Chrome(service=Service(ChromeDriverManager(version=version_number).install()))
 
     return driver
 
@@ -161,7 +196,7 @@ def start():
     if webdriver.lower() not in ['firefox', 'chrome']:
         print("Select a valid webdriver (e.g. chrome or firefox)")
         sys.exit(1)
-
+        
     driver = create_driver(webdriver)
     run(driver, keyword, max_price, pages)
 
