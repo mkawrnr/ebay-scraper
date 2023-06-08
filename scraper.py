@@ -1,4 +1,5 @@
 import sys
+import re
 import argparse
 import requests
 import platform
@@ -26,18 +27,11 @@ args = parser.parse_args()
 FILTER_WORDS = [
     'kaputt',
     'bastler',
-    'repair',
-    'Displayschaden',
-    'displayschaden',
-    'schaden',
+    'tausche',
+    'defekt',
     'risse',
-    'Risse',
-    'riss',
-    'Schaden',
-    'Tausche',
-    'Tauschen',
-    'Tausch',
-    'tausch'
+    'hülle',
+    'case'
 ]
 
 
@@ -64,7 +58,7 @@ def run(driver, keyword, max_price, pages):
 
             # combines extracted links and prices; removes items matching filter words
             combined = list(zip(links, prices))
-            combined_filtered = [pair for pair in combined if not any(word in pair[0] for word in FILTER_WORDS)]
+            combined_filtered = [pair for pair in combined if not any(re.search(r'\b{}\b'.format(keyword), pair[0].lower(), re.IGNORECASE) for keyword in FILTER_WORDS)]
             for pair in combined_filtered:
                 link_price_pairs.append(pair)
         except:
