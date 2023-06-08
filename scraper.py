@@ -27,26 +27,11 @@ args = parser.parse_args()
 FILTER_WORDS = [
     'kaputt',
     'bastler',
-<<<<<<< HEAD
     'tausche',
     'defekt',
     'risse',
     'hülle',
     'case'
-=======
-    'repair',
-    'Displayschaden',
-    'displayschaden',
-    'schaden',
-    'risse',
-    'Risse',
-    'riss',
-    'Schaden',
-    'Tausche',
-    'Tauschen',
-    'Tausch',
-    'tausch'
->>>>>>> refs/remotes/origin/main
 ]
 
 
