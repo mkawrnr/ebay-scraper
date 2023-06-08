@@ -33,6 +33,7 @@ Optional
 
 scraper.py [-p PAGES; --pages PAGES] set how many pages to scrape
            [-d DRIVER; --driver DRIVER] set which driver to use (chrome / firefox) 
+           [-l True; --list True] save output to text file
 
 
 Example
